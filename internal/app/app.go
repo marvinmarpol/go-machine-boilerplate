@@ -1,19 +1,31 @@
 package app
 
 import (
-	"fmt"
-	"go-machine-boilerplate/pkg/utils/httpserver"
+	"bufio"
+	"go-machine-boilerplate/internal/parking/adapter/cli"
+	"go-machine-boilerplate/internal/parking/service"
+	"os"
+	"strings"
+)
+
+const (
+	exitCommand = "exit"
+	exitCode    = "99"
 )
 
 func Run() error {
+	parkingLotService := service.NewParkingLotService()
 
-	config, err := loadConfig()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		input := scanner.Text()
+		if input == exitCode || strings.ToLower(input) == exitCommand {
+			break
+		}
+
+		cmd := cli.ParseInput(input)
+		cmd.Dispatch(parkingLotService)
 	}
-
-	httpserver.Serve(config.ServiceAddress, "tcp", nil)
 
 	return nil
 }
