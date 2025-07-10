@@ -17,6 +17,8 @@ var (
 	mapVehicleType = map[int]VehicleType{
 		1: Truck,
 		2: Bike,
+		3: Bike,
+		4: Car,
 	}
 
 	mapVehicleColor = map[VehicleColor]bool{

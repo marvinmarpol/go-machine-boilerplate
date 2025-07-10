@@ -10,9 +10,9 @@ const (
 	parkVehicleCommand   = "park_vehicle"
 	unparkVehicleCommand = "unpark_vehicle"
 	displayCommand       = "display"
-	unknownCommand       = "unknown_command"
+	unknownCommand       = "\nunknown_command\n\n"
 
-	commandErrorF = "invalid arguments for %s"
+	commandErrorF = "\ninvalid arguments for %s\n\n"
 )
 
 type Command struct {
@@ -24,30 +24,33 @@ func (cmd *Command) Dispatch(parkingLotService *service.ParkingLotService) {
 	switch cmd.Name {
 	case createParkingCommand:
 		if len(cmd.Args) != 3 {
-			fmt.Println(fmt.Sprintf(commandErrorF, createParkingCommand))
+			fmt.Printf(commandErrorF, createParkingCommand)
 			break
 		}
 		parkingLotService.CreateParkingLot(cmd.Args[0], cmd.Args[1], cmd.Args[2])
 
 	case parkVehicleCommand:
 		if len(cmd.Args) != 3 {
-			fmt.Println(fmt.Sprintf(commandErrorF, parkVehicleCommand))
+			fmt.Printf(commandErrorF, parkVehicleCommand)
 			break
 		}
+		parkingLotService.ParkVehicle(cmd.Args[0], cmd.Args[1], cmd.Args[2])
 
 	case unparkVehicleCommand:
 		if len(cmd.Args) != 1 {
-			fmt.Println(fmt.Sprintf(commandErrorF, unparkVehicleCommand))
+			fmt.Printf(commandErrorF, unparkVehicleCommand)
 			break
 		}
+		parkingLotService.UnparkVehicle(cmd.Args[0])
 
 	case displayCommand:
-		if len(cmd.Args) != 1 {
-			fmt.Println(fmt.Sprintf(commandErrorF, displayCommand))
+		if len(cmd.Args) != 2 {
+			fmt.Printf(commandErrorF, displayCommand)
 			break
 		}
+		parkingLotService.Display(cmd.Args[0], cmd.Args[1])
 
 	default:
-		fmt.Println(unknownCommand)
+		fmt.Print(unknownCommand)
 	}
 }
