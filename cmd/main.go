@@ -1,7 +1,13 @@
 package main
 
-import "go-machine-boilerplate/internal/app"
+import (
+	"fmt"
+	"go-machine-boilerplate/internal/app"
+)
 
 func main() {
-	app.Run()
+	err := app.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
