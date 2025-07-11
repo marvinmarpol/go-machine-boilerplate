@@ -2,18 +2,21 @@ package app
 
 import (
 	"fmt"
-	"go-machine-boilerplate/pkg/utils/httpserver"
+	"go-machine-boilerplate/internal/ratelimiter/service"
+	"time"
 )
 
 func Run() error {
 
-	config, err := loadConfig()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
+	rateLimiterService := service.NewRateLimiterService()
 
-	httpserver.Serve(config.ServiceAddress, "tcp", nil)
+	for i := 0; i < 5; i++ {
+		result := rateLimiterService.Passthrough()
+		fmt.Println("incoming request status:", result)
+		if !result {
+			time.Sleep(time.Duration(rateLimiterService.GetCooldownPeriod()))
+		}
+	}
 
 	return nil
 }
