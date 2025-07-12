@@ -1,35 +1,48 @@
 package service
 
-import "go-machine-boilerplate/internal/ratelimiter/domain"
+import (
+	"go-machine-boilerplate/internal/ratelimiter/domain"
+	"time"
+)
 
 type RateLimiterService struct {
 	domain         domain.RateLimiter
 	requestCounter int
+	currentTime    time.Time
 }
 
 const (
-	defaultMaxRequest     = 3
-	defaultCooldownPeriod = 5
+	defaultMaxRequest = 3
+	defaultWindowSize = 5
 )
 
 func NewRateLimiterService() *RateLimiterService {
-	return &RateLimiterService{domain: domain.RateLimiter{
-		MaxRequest:     defaultMaxRequest,
-		CooldownPeriod: defaultCooldownPeriod,
-	}}
+	rs := RateLimiterService{
+		currentTime: time.Now(),
+		domain: domain.RateLimiter{
+			MaxRequest: defaultMaxRequest,
+			WindowSize: defaultWindowSize,
+		},
+	}
+
+	return &rs
 }
 
 func (s *RateLimiterService) Passthrough() bool {
-	s.requestCounter++
+	diff := time.Now().Sub(s.currentTime)
 
-	if s.requestCounter > s.domain.MaxRequest {
+	diffInSecond := diff.Seconds()
+	windowSizeSecond := time.Duration(s.domain.WindowSize) * time.Second
+
+	if diffInSecond > windowSizeSecond.Seconds() {
+		s.currentTime = time.Now()
+		s.requestCounter = 0
+	}
+
+	if s.requestCounter >= defaultMaxRequest {
 		return false
 	}
 
-	s.requestCounter = 0
+	s.requestCounter++
 	return true
-}
-
-func (s *RateLimiterService) GetCooldownPeriod() int {
-	return s.domain.CooldownPeriod
 }

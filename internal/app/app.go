@@ -10,12 +10,9 @@ func Run() error {
 
 	rateLimiterService := service.NewRateLimiterService()
 
-	for i := 0; i < 5; i++ {
-		result := rateLimiterService.Passthrough()
-		fmt.Println("incoming request status:", result)
-		if !result {
-			time.Sleep(time.Duration(rateLimiterService.GetCooldownPeriod()))
-		}
+	for i := 0; i < 15; i++ {
+		fmt.Println(time.Now(), rateLimiterService.Passthrough())
+		time.Sleep(1 * time.Second)
 	}
 
 	return nil

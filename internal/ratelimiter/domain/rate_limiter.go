@@ -3,12 +3,12 @@ package domain
 import "fmt"
 
 type RateLimiter struct {
-	MaxRequest     int
-	CooldownPeriod int
+	WindowSize int
+	MaxRequest int
 }
 
-func NewRateLimiter() *RateLimiter {
-	return &RateLimiter{}
+func NewRateLimiter(windowsSize, maxRequest int) *RateLimiter {
+	return &RateLimiter{WindowSize: windowsSize, MaxRequest: maxRequest}
 }
 
 func (r *RateLimiter) setMaxRequest(MaxRequest int) error {
@@ -21,11 +21,11 @@ func (r *RateLimiter) setMaxRequest(MaxRequest int) error {
 	return nil
 }
 
-func (r *RateLimiter) setCooldownPeriod(period int) error {
-	if period < 1 {
+func (r *RateLimiter) setWindowsize(windowSize int) error {
+	if windowSize < 1 {
 		return fmt.Errorf("should be greater 1")
 	}
 
-	r.CooldownPeriod = period
+	r.WindowSize = windowSize
 	return nil
 }
