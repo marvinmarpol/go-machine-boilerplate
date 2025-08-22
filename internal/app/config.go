@@ -12,7 +12,7 @@ type Config struct {
 	DBHost         string `env:"DATA_PROTECTION_DB_ADDRESS" env-default:"localhost"`
 	DBPort         int    `env:"DATA_PROTECTION_DB_PORT" env-default:"5432"`
 	DBUser         string `env:"DATA_PROTECTION_DB_USER" env-default:"postgres"`
-	DBPassword     string `env:"DATA_PROTECTION_DB_PASSWORD" env-default:"Tunaiku2018"`
+	DBPassword     string `env:"DATA_PROTECTION_DB_PASSWORD" env-default:"password"`
 	DBName         string `env:"DATA_PROTECTION_DB_NAME" env-default:"go_machine"`
 	DBPoolSize     int    `env:"DATA_PROTECTION_DB_POOL_SIZE" env-default:"10"`
 	DBMaxRetries   int    `env:"DATA_PROTECTION_DB_MAX_RETRIES" env-default:"3"`
