@@ -9,24 +9,32 @@ import (
 	"strings"
 )
 
-const exitCode = "99"
-const exitMessage = "exit"
+const (
+	exitCode     = "99"
+	exitMessage  = "exit"
+	debugMessage = "debug"
+)
 
 func Run() error {
-	var splitWiseService = service.SplitWiseService{}
-	fmt.Print("input mode active\n\n")
+	var splitWiseService = service.NewSplitwiseService()
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := strings.TrimSpace(scanner.Text())
 		if input == exitCode || strings.ToLower(input) == exitMessage {
-			fmt.Println("system exited")
+			fmt.Println("\nsystem exited")
 			break
 		}
 
-		command := cli.Parse(input)
-		command.Dispatch(splitWiseService)
+		if strings.ToLower(input) == debugMessage {
+			fmt.Println(splitWiseService.Users, "\n")
+		}
 
+		command := cli.Parse(input)
+		err := command.Dispatch(splitWiseService)
+		if err != nil {
+			fmt.Printf("\n%s\n\n", err.Error())
+		}
 	}
 
 	return nil
