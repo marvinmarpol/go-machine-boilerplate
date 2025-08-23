@@ -50,6 +50,12 @@ func (cmd *Command) Dispatch(s *service.SplitWiseService) error {
 			}
 		}
 
+	case ShowCMD:
+		s.ShowBalanceCLI(cmd.Args[0])
+
+	case ExpenseCMD:
+		s.ExpenseCLI(cmd.Args[0], cmd.Args[1], cmd.Args[2:])
+
 	case DebugCMD:
 		s.PrintUsers()
 	}
