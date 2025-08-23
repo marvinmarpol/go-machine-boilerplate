@@ -14,6 +14,7 @@ const (
 	RegisterCMD = "REGISTER"
 	ShowCMD     = "SHOW"
 	ExpenseCMD  = "EXPENSE"
+	DebugCMD    = "DEBUG"
 )
 
 func (cmd *Command) validate() bool {
@@ -48,6 +49,9 @@ func (cmd *Command) Dispatch(s *service.SplitWiseService) error {
 				return err
 			}
 		}
+
+	case DebugCMD:
+		s.PrintUsers()
 	}
 
 	return nil

@@ -1,16 +1,19 @@
 package service
 
 import (
+	"fmt"
 	"go-machine-boilerplate/internal/splitwise/domain"
 	"strconv"
 )
 
 type SplitWiseService struct {
-	Users []domain.User
+	Users map[string]domain.User
 }
 
 func NewSplitwiseService() *SplitWiseService {
-	return &SplitWiseService{}
+	return &SplitWiseService{
+		Users: make(map[string]domain.User),
+	}
 }
 
 func (s *SplitWiseService) RegisterUserCLI(IDArgs, BalanceArgs string) error {
@@ -23,6 +26,16 @@ func (s *SplitWiseService) RegisterUserCLI(IDArgs, BalanceArgs string) error {
 	return nil
 }
 
+func (s *SplitWiseService) PrintUsers() {
+	for _, user := range s.Users {
+		fmt.Println("\nid:", user.ID, "balance:", user.Balance)
+		fmt.Println("list of debts:")
+		for _, debt := range user.Debts {
+			fmt.Println("debtorID:", debt.ID, "debtAmount:", debt.Balance)
+		}
+	}
+}
+
 func (s *SplitWiseService) addUser(user domain.User) {
-	s.Users = append(s.Users, user)
+	s.Users[user.ID] = user
 }

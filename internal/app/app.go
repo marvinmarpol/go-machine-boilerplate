@@ -10,9 +10,8 @@ import (
 )
 
 const (
-	exitCode     = "99"
-	exitMessage  = "exit"
-	debugMessage = "debug"
+	exitCode    = "99"
+	exitMessage = "exit"
 )
 
 func Run() error {
@@ -22,19 +21,17 @@ func Run() error {
 	for scanner.Scan() {
 		input := strings.TrimSpace(scanner.Text())
 		if input == exitCode || strings.ToLower(input) == exitMessage {
-			fmt.Println("\nsystem exited")
+			fmt.Println("system exited")
 			break
-		}
-
-		if strings.ToLower(input) == debugMessage {
-			fmt.Println(splitWiseService.Users, "\n")
 		}
 
 		command := cli.Parse(input)
 		err := command.Dispatch(splitWiseService)
 		if err != nil {
-			fmt.Printf("\n%s\n\n", err.Error())
+			fmt.Println(err.Error())
 		}
+
+		fmt.Println()
 	}
 
 	return nil
