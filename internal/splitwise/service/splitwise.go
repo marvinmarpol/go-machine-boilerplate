@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"go-machine-boilerplate/internal/splitwise/domain"
 	"strconv"
@@ -73,26 +74,103 @@ func (s *SplitWiseService) ExpenseCLI(payerID, amountString string, args []strin
 		return err
 	}
 
+	// get offset of command
 	offset := userLength + 1
 	if offset > len(args) {
 		return err
 	}
 
+	// get userIDS
 	userIDs := args[1 : userLength+1]
 
+	// get amounts
+	splitAmounts := []string{}
+	splitAmountsF := []float64{}
+	if len(args) > offset {
+		splitAmounts = args[offset+1:]
+		for _, val := range splitAmounts {
+			amountSub, err := strconv.Atoi(val)
+			if err != nil {
+				return err
+			}
+			splitAmountsF = append(splitAmountsF, float64(amountSub))
+		}
+	}
+
+	// get amount in float format
 	amount, err := strconv.Atoi(amountString)
 	if err != nil {
 		return err
 	}
 	amountF := float64(amount)
 
+	// get expense type
 	expenseType := args[offset]
+	if expenseType == ExactExpenseCMD || expenseType == PercentExpenseCMD {
+		if len(splitAmounts) < 1 {
+			return errors.New("split amounts not provided")
+		}
+		if len(splitAmounts) != len(userIDs) {
+			return errors.New("amount allocation missmatch")
+		}
+	}
+
 	switch expenseType {
-	case "EQUAL":
+	case EqualExpenseCMD:
 		s.SplitEqual(payerID, amountF, userLength, userIDs)
+	case ExactExpenseCMD:
+		s.SplitExact(payerID, splitAmountsF, userIDs)
+	case PercentExpenseCMD:
+		s.SplitPercent(payerID, amountF, splitAmountsF, userIDs)
 	}
 
 	return nil
+}
+
+func (s *SplitWiseService) SplitExact(payerID string, splitAmounts []float64, userIDs []string) {
+	payerUser, ok := s.Users[payerID]
+	if !ok {
+		return
+	}
+
+	for i, userID := range userIDs {
+		if userID == payerID {
+			continue
+		}
+
+		debtUser, ok := s.Users[userID]
+		if !ok {
+			continue
+		}
+
+		debtUser.Balance -= splitAmounts[i]
+		debtUser.Debts[payerID] += splitAmounts[i]
+		payerUser.Receivables[userID] += splitAmounts[i]
+	}
+}
+
+func (s *SplitWiseService) SplitPercent(payerID string, amountF float64, percentages []float64, userIDs []string) {
+	payerUser, ok := s.Users[payerID]
+	if !ok {
+		return
+	}
+
+	for i, userID := range userIDs {
+		if userID == payerID {
+			continue
+		}
+
+		debtUser, ok := s.Users[userID]
+		if !ok {
+			continue
+		}
+
+		splitAmount := amountF * percentages[i] / 100
+
+		debtUser.Balance -= splitAmount
+		debtUser.Debts[payerID] += splitAmount
+		payerUser.Receivables[userID] += splitAmount
+	}
 }
 
 func (s *SplitWiseService) SplitEqual(payerID string, amountF float64, numDivide int, userIDs []string) {
