@@ -2,18 +2,20 @@ package app
 
 import (
 	"fmt"
-	"go-machine-boilerplate/pkg/utils/httpserver"
+	"go-machine-boilerplate/internal/lockmanager"
+	"time"
 )
 
 func Run() error {
+	im := lockmanager.NewLockManager()
 
-	config, err := loadConfig()
-	if err != nil {
-		fmt.Println(err.Error())
-		return err
-	}
+	fmt.Println(im.Lock("payload", "marvin", 1*time.Second))
+	fmt.Println(im.Lock("payload", "marvin", 1*time.Second))
 
-	httpserver.Serve(config.ServiceAddress, "tcp", nil)
+	time.Sleep(3 * time.Second)
+	fmt.Println(im.Lock("payload", "marvin", 1*time.Second))
+	fmt.Println(im.Unlock("payload", "wrongClient"))
+	fmt.Println(im.Unlock("payload", "marvin"))
 
 	return nil
 }
